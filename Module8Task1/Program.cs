@@ -7,35 +7,41 @@ namespace Module8Task1
     {
         static void Main(string[] args)
         {
-            DirectoryInfo directory = new DirectoryInfo(@"C:\Users\YOGA\Desktop\Кема2курс\Физика3семестр");
+            DirectoryInfo directory = new DirectoryInfo(@"C:\Users\YOGA\Desktop\WaitingForDeath");
             try
             {
                 if (directory.Exists)
                 {
-                    DateTime thirty = DateTime.Now - TimeSpan.FromMinutes(300);
-                    foreach (FileInfo file in directory.GetFiles())
-                    {
-                        if (file.LastAccessTime < thirty)
-                        {
-                            file.Delete();
-                        }
-                    }
-                    foreach (DirectoryInfo papka in directory.GetDirectories())
-                    {
-                        if (papka.LastAccessTime < thirty)
-                        {
-                            papka.Delete(true);
-                        }
-                    }
+                    Delete(directory);
                 }
                 else
                 {
-                    throw new Exception("Такой папки не существует");
+                    Console.WriteLine("Такой папки нет...");
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Ошибка: {ex.Message}");
+                if (ex is UnauthorizedAccessException)
+                {
+                    Console.WriteLine("Нет прав доступа...");
+                }
+            }
+        }
+
+        static void Delete(DirectoryInfo dirSpace)
+        {
+            foreach (FileInfo file in dirSpace.GetFiles())
+            {
+                var thirty = DateTime.Now - file.LastAccessTime;
+                if (thirty > TimeSpan.FromMinutes(30))
+                {
+                    file.Delete();
+                }
+            }
+            foreach (DirectoryInfo papka in dirSpace.GetDirectories())
+            {
+                Delete(papka);
+                papka.Delete();
             }
         }
     }
